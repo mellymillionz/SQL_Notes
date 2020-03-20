@@ -227,4 +227,18 @@ SELECT id, avg(a.sale_price) FROM (
   SELECT id, sale_price FROM order_items_historic) AS a 
   GROUP BY 1;
 
+-- INTERSECT is used to combine two SELECT statements, but returns rows only from the first SELECT statement that are identical to a row in the second SELECT statement. This means that it returns only common rows returned by the two SELECT statements.
+-- For instance, we might want to know what categories in our newly acquired store are also in our legacy store. We can do so using the following query:
 
+SELECT category
+FROM new_products
+INTERSECT
+SELECT category
+FROM legacy_products;
+
+-- EXCEPT is constructed in the same way, but returns distinct rows from the first SELECT statement that aren’t output by the second SELECT statement.
+-- Say want to see if there are any categories that are in the new_products table that aren’t in the legacy_products table.
+
+SELECT category FROM new_products
+EXCEPT
+SELECT category FROM legacy_products;
