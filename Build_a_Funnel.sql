@@ -54,3 +54,25 @@ ORDER BY 1;
 -- The user enters credit card information and makes a purchase
 -- As Christmas approaches, you suspect that customers become more likely to purchase items in their cart (i.e., they move from window shopping to buying presents).
 
+ SELECT * 
+ FROM browse as b
+ LEFT JOIN checkout as c
+ ON c.user_id = b.user_id
+ LEFT JOIN purchase as p
+ ON p.user_id = c.user_id
+ LIMIT 50;
+
+ -- ABOVE, we dont actually want allll the columns so can cut it down using:
+ 
+  SELECT 
+ DISTINCT b.browse_date,
+ b.user_id,
+ c.user_id IS NOT NULL as is_checkout,
+ p.user_id IS NOT NULL as is_purchase
+ FROM browse as b
+ LEFT JOIN checkout as c
+ ON c.user_id = b.user_id
+ LEFT JOIN purchase as p
+ ON p.user_id = c.user_id
+ LIMIT 50;
+
