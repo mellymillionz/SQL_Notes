@@ -63,7 +63,7 @@ ORDER BY 1;
  LIMIT 50;
 
  -- ABOVE, we dont actually want allll the columns so can cut it down using:
- 
+
   SELECT 
  DISTINCT b.browse_date,
  b.user_id,
@@ -75,4 +75,59 @@ ORDER BY 1;
  LEFT JOIN purchase as p
  ON p.user_id = c.user_id
  LIMIT 50;
+
+ -- Let’s query from this funnels table and calculate overall conversion rates:
+
+ WITH funnels AS (
+  SELECT DISTINCT b.browse_date,
+     b.user_id,
+     c.user_id IS NOT NULL AS 'is_checkout',
+     p.user_id IS NOT NULL AS 'is_purchase'
+  FROM browse AS 'b'
+  LEFT JOIN checkout AS 'c'
+    ON c.user_id = b.user_id
+  LEFT JOIN purchase AS 'p'
+    ON p.user_id = c.user_id)
+SELECT COUNT(*) as num_browse
+FROM funnels;
+
+-- Second, add another column that sums the is_checkout in funnels and one that sums purcahses
+
+WITH funnels AS (
+  SELECT DISTINCT b.browse_date,
+     b.user_id,
+     c.user_id IS NOT NULL AS 'is_checkout',
+     p.user_id IS NOT NULL AS 'is_purchase'
+  FROM browse AS 'b'
+  LEFT JOIN checkout AS 'c'
+    ON c.user_id = b.user_id
+  LEFT JOIN purchase AS 'p'
+    ON p.user_id = c.user_id)
+SELECT COUNT(*) as num_browse,
+SUM(is_checkout) as num_checkout,
+SUM(is_purchase) as num_purchase
+FROM funnels;
+
+-- Finally, Let’s add these two columns:
+-- Percentage of users from browse to checkout
+-- Percentage of users from checkout to purchase
+
+WITH funnels AS (
+  SELECT DISTINCT b.browse_date,
+     b.user_id,
+     c.user_id IS NOT NULL AS 'is_checkout',
+     p.user_id IS NOT NULL AS 'is_purchase'
+  FROM browse AS 'b'
+  LEFT JOIN checkout AS 'c'
+    ON c.user_id = b.user_id
+  LEFT JOIN purchase AS 'p'
+    ON p.user_id = c.user_id)
+SELECT COUNT(*) as num_browse,
+SUM(is_checkout) as num_checkout,
+SUM(is_purchase) as num_purchase,
+1.0 * SUM(is_checkout) / COUNT(user_id) as browse_to_checkout,
+1.0 * SUM(is_purchase) / SUM(is_checkout) as checkout_to_purchase
+FROM funnels;
+
+-- The management team suspects that conversion from checkout to purchase changes as the browse_date gets closer to Christmas Day.
 
