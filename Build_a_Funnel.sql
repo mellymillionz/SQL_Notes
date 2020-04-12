@@ -30,3 +30,27 @@ COUNT(DISTINCT CASE
 FROM onboarding_modals
 GROUP BY 1
 ORDER BY 1;
+
+-- Add an additional column to your previous query that counts the number of clicks from the variant group 
+
+SELECT modal_text,
+COUNT(DISTINCT CASE
+     WHEN ab_group = 'control' THEN
+     user_id
+     END) AS 'control_clicks',
+COUNT(DISTINCT CASE
+     WHEN ab_group = 'variant' THEN 
+     user_id END) AS 'variant_clicks'
+FROM onboarding_modals
+GROUP BY 1
+ORDER BY 1;
+
+-- ABOVE now you can compare completion rates between the control and variant groups! Here, variant has a greater completion rate.
+
+-- Now let’s see how we can create a funnel from multiple tables using LEFT JOIN!
+-- Purchase funnel:
+-- The user browses products and adds them to their cart
+-- The user proceeds to the checkout page
+-- The user enters credit card information and makes a purchase
+-- As Christmas approaches, you suspect that customers become more likely to purchase items in their cart (i.e., they move from window shopping to buying presents).
+
