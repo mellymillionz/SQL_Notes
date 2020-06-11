@@ -246,3 +246,34 @@ FROM countries_plus as c
 -- 4. Order the table    
 ORDER BY geosize_group ASC;
 ```
+
+# INNER JOIN vs LEFT JOIN
+
+You'll use INNER JOIN when you want to return only records having pair on both sides, and you'll use LEFT JOIN when you need all records from the “left” table, no matter if they have pair in the “right” table or not.
+
+The following queries are almost identical but the INNER JOIN version resulted in 909 records. The LEFT JOIN version returned 916 rows.
+
+LEFT JOIN
+```sql
+SELECT c.name AS country, local_name, l.name AS language, percent
+-- 1. From left table (alias as c)
+FROM countries AS c
+  -- 2. Join to right table (alias as l)
+  LEFT JOIN languages AS l
+    -- 3. Match on fields
+    ON c.code = l.code
+-- 4. Order by descending country
+ORDER BY country DESC;
+```
+INNER JOIN
+```sql
+SELECT c.name AS country, local_name, l.name AS language, percent
+-- 1. From left table (alias as c)
+FROM countries AS c
+  -- 2. Join to right table (alias as l)
+  INNER JOIN languages AS l
+    -- 3. Match on fields
+    ON c.code = l.code
+-- 4. Order by descending country
+ORDER BY country DESC;
+```
