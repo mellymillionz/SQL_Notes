@@ -379,4 +379,90 @@ SELECT p. country_code, p.year
 ORDER BY code, year;
 ```
 
-As you think about major world cities and their corresponding country, you may ask which countries also have a city with the same name as their country name?
+# EXCEPT
+
+City names except those that are capitals:
+
+```sql
+-- Select field
+SELECT name
+  -- From cities
+  FROM cities
+	-- Set theory clause
+	EXCEPT
+-- Select field
+SELECT capital
+  -- From countries
+  FROM countries
+-- Order by result
+ORDER BY name asc;
+```
+
+# SEMI - JOIN
+
+Similar to where clause dependent on values of the second table
+Chooses records in a first table where condition is met in the second table.
+
+```sql
+-- Select distinct fields
+SELECT DISTINCT name
+  -- From languages
+  FROM languages
+-- Where in statement
+WHERE code IN
+  -- Subquery
+  (SELECT code
+   FROM countries
+   WHERE region = 'Middle East')
+-- Order by name
+ORDER BY name;
+```
+
+# ANTI - JOIN 
+
+Does the opposite; takes out columns in left table that do not match first table.
+
+It is particularly useful in identifying which records are causing an incorrect number of records to appear in join queries.
+
+The followin query shows which countries were not included in the currencies table!
+
+```sql
+-- 3. Select fields
+SELECT code, name
+  -- 4. From Countries
+  FROM countries
+  -- 5. Where continent is Oceania
+  WHERE continent = 'Oceania'
+  	-- 1. And code not in
+  	AND code NOT IN
+  	-- 2. Subquery
+  	(SELECT code 
+  	 FROM currencies);
+```
+
+## SUBQUERIES
+
+Identify the country codes that are included in either economies or currencies but not in populations. Use that result to determine the names of cities in the countries that match the specification in the previous instruction.
+
+```sql
+-- Select the city name
+SELECT name
+  -- Alias the table where city name resides
+  FROM cities AS c1
+  -- Choose only records matching the result of multiple set theory clauses
+  WHERE c1.country_code IN
+(
+    -- Select appropriate field from economies AS e
+    SELECT e.code
+    FROM economies AS e
+    -- Get all additional (unique) values of the field from currencies AS c2  
+    UNION
+    SELECT DISTINCT c2.code
+    FROM currencies AS c2
+    -- Exclude those appearing in populations AS p
+    EXCEPT
+    SELECT p.country_code
+    FROM populations AS p
+);
+```
+
