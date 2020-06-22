@@ -277,3 +277,106 @@ FROM countries AS c
 -- 4. Order by descending country
 ORDER BY country DESC;
 ```
+Left join with agg function. Here will use it in combination with left join to determine the average gross domestic product (GDP) per capita by region in 2010.
+```sql
+SELECT region, AVG(gdp_percapita) AS avg_gdp
+-- From countries (alias as c)
+FROM countries AS c
+  -- Left join with economies (alias as e)
+  LEFT JOIN economies AS e
+    -- Match on code fields
+    ON c.code = e.code
+-- Focus on 2010
+WHERE year = 2010
+-- Group by region
+GROUP BY region;
+```
+
+# LEFT JOIN to RIGHT JOIN
+
+Left join:
+```sql
+SELECT cities.name AS city, urbanarea_pop, countries.name AS country,
+       indep_year, languages.name AS language, percent
+FROM cities
+  LEFT JOIN countries
+    ON cities.country_code = countries.code
+  LEFT JOIN languages
+    ON countries.code = languages.code
+ORDER BY city, language;
+```
+Can be converted to a right join. Needs to be exactly reversed:
+```sql
+SELECT cities.name AS city, urbanarea_pop, countries.name AS country,
+       indep_year, languages.name AS language, percent
+FROM languages 
+  RIGHT JOIN countries 
+    ON countries.code = languages.code
+  RIGHT JOIN cities
+    ON countries.code = cities.country_code
+ORDER BY city, language;
+```
+
+# UNION and UNION ALL
+
+Union simply stacks records instead of combining them the way that the join would. 
+
+UNION: 
+In the example below, we use union to determine all occruances of a field across two tables:
+
+```sql
+SELECT country_code
+  -- From cities
+  FROM cities
+	-- Set theory clause
+	UNION
+-- Select field
+SELECT code
+  -- From currencies
+  FROM currencies
+-- Order by country_code
+order by country_code;
+```
+UNION ALL:
+
+Determine all combinations (include duplicates) of country code and year that exist in either the economies or the populations tables. 
+
+This means there will de DUPLICATES!
+
+```sql
+-- Select fields
+SELECT e.code, e.year
+  -- From economies
+  FROM economies as e
+	-- Set theory clause
+	UNION ALL
+-- Select fields
+SELECT  p.country_code, p.year
+  -- From populations
+  FROM populations as p
+-- Order by code, year
+ORDER BY code, year;
+```
+
+# INTERSECT:
+
+Only includes records in common from both tables (unlike Union!)
+
+If intersect includes two columns, it includes both in the search. If the key fields are never the same, you could end up with an empty table!
+
+```sql
+-- Select fields
+SELECT e.code, e.year
+  -- From economies
+  FROM economies as e
+	-- Set theory clause
+	INTERSECT
+-- Select fields
+SELECT p. country_code, p.year 
+  -- From populations
+  FROM populations as p
+-- Order by code and year
+ORDER BY code, year;
+```
+
+As you think about major world cities and their corresponding country, you may ask which countries also have a city with the same name as their country name?
